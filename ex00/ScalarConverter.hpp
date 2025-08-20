@@ -6,7 +6,7 @@
 /*   By: aisidore <aisidore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 13:39:23 by aisidore          #+#    #+#             */
-/*   Updated: 2025/08/20 20:09:19 by aisidore         ###   ########.fr       */
+/*   Updated: 2025/08/20 20:41:58 by aisidore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # include <iostream>
 # include <cstdlib> //strtod strtol
+# include <cfloat>  // Pour FLT_MAX et FLT_MIN
+# include <cerrno>  // Pour ERANGE
 
 //Pour chaque exercise, la conversion doit etre faite a partir des 5 que propose C++ et justifie
 // • char
