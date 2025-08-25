@@ -6,7 +6,7 @@
 #    By: aisidore <aisidore@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/03 14:09:31 by aisidore          #+#    #+#              #
-#    Updated: 2025/08/20 19:24:54 by aisidore         ###   ########.fr        #
+#    Updated: 2025/08/25 16:31:03 by aisidore         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,9 +14,9 @@ NAME = serializer
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = src/main.cpp src/Base.cpp
+SRC = src/main.cpp src/Serialize.cpp
 
-OBJ = objets/main.o objets/Base.o
+OBJ = objets/main.o objets/Serialize.o
 
 all: $(NAME)
 

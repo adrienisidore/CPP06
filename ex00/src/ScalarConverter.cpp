@@ -6,7 +6,7 @@
 /*   By: aisidore <aisidore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 14:37:31 by aisidore          #+#    #+#             */
-/*   Updated: 2025/08/25 15:54:01 by aisidore         ###   ########.fr       */
+/*   Updated: 2025/08/25 16:37:53 by aisidore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,30 @@ ScalarConverter&	ScalarConverter::operator=(const ScalarConverter& rhs)
 
 ScalarConverter::~ScalarConverter() {}
 
-static bool			printMsg(std::string msg[4], char c, int i, float f, double d)
+static bool			IsaNumber(std::string str)
+{
+	if (str == "nanf" || str == "+inff" || str == "-inff"
+		|| str == "nan" || str == "-inf" || str == "+inf" || str == "inf")
+		return (false);
+	return (true);
+}
+
+static bool			printMsg(std::string msg[5], char c, int i, float f, double d)
 {
 	if (c)
 		std::cout << msg[0] << "\'" << c << "\'" << std::endl;
-	else
+	else if (IsaNumber(msg[4]))
 		std::cout << msg[0] << "Non displayable" << std::endl;
-	std::cout << msg[1] << i << std::endl;
+	else
+		std::cout << msg[0] << "impossible" << std::endl;
+	if (IsaNumber(msg[4]))	
+		std::cout << msg[1] << i << std::endl;
+	else
+		std::cout << msg[1] << "impossible" << std::endl;
 	if (!std::fabs(f - std::floor(f)) && std::fabs(f) < 1e6f)
 		std::cout << msg[2] << f << ".0f" << std::endl;
 	else
-		std::cout << msg[2] << std::setprecision(7) << f << "f" << std::endl;
+		std::cout << msg[2] << std::setprecision(7) << f << "f" << std::endl;	
 	if (!std::fabs(d - std::floor(d)) && std::fabs(d) < 1e6)
 		std::cout << msg[3] << d << ".0" << std::endl;
 	else
@@ -42,38 +55,7 @@ static bool			printMsg(std::string msg[4], char c, int i, float f, double d)
 	return (true);
 }
 
-//la conversion de la plupart des elements marche sans
-static bool			isStrange(std::string str)
-{
-	if (str == "nanf" || str == "+inff" || str == "-inff"
-		|| str == "nan" || str == "-inf" || str == "+inf")
-		return (true);
-	// (void)str;
-	return (false);
-}
-
-static bool			convertStrange(std::string msg[4], std::string str)
-{
-	std::string	for_char = "impossible";
-	std::string	for_int = "impossible";
-	std::string	for_float = "impossible";
-	std::string	for_double = "impossible";
-	
-	(void)str;//
-	if (str == "nan")
-	{
-		
-	}
-
-	
-	std::cout << msg[0] << for_char << std::endl;
-	std::cout << msg[1] << for_int << std::endl;
-	std::cout << msg[2] << for_float << std::endl;
-	std::cout << msg[3] << for_double << std::endl;
-	return (true);
-}
-
-static bool			convertChar(std::string msg[4], char c)
+static bool			convertChar(std::string msg[5], char c)
 {
 	int		i = static_cast<int>(c);
 	float	f = static_cast<float>(c);
@@ -81,7 +63,7 @@ static bool			convertChar(std::string msg[4], char c)
 	return (printMsg(msg, c, i, f, d));
 }
 
-static bool			convertInt(std::string msg[4], int i)
+static bool			convertInt(std::string msg[5], int i)
 {
 	char	c = static_cast<char>(i);
 	float	f = static_cast<float>(i);
@@ -91,7 +73,7 @@ static bool			convertInt(std::string msg[4], int i)
 	return (printMsg(msg, c, i, f, d));	
 }
 
-static bool			convertFloat(std::string msg[4], float f)
+static bool			convertFloat(std::string msg[5], float f)
 {
 	char	c = static_cast<char>(f);
 	int		i = static_cast<int>(f);
@@ -101,7 +83,7 @@ static bool			convertFloat(std::string msg[4], float f)
 	return (printMsg(msg, c, i, f, d));	
 }
 
-static bool			convertDouble(std::string msg[4], double dbl)
+static bool			convertDouble(std::string msg[5], double dbl)
 {
 	char	c = static_cast<char>(dbl);
 	int		i = static_cast<int>(dbl);
@@ -110,12 +92,11 @@ static bool			convertDouble(std::string msg[4], double dbl)
 		c = 0;
 	return (printMsg(msg, c, i, f, dbl));	
 }
-
+//=inff +inff
 bool				ScalarConverter::convert(const std::string &av)
 {
-	std::string msg[4] = {"char: ", "int: ", "float: ", "double: "};
+	std::string msg[5] = {"char: ", "int: ", "float: ", "double: ", av};
 	if (av == " ") return (convertChar(msg, av[0]));
-	if (isStrange(av)) return (convertStrange(msg, av));
 
 	char* end;//Pointe vers le 1er element non numerique (hors -+.)
 	double dbl = std::strtod(av.c_str(), &end);//vaut 0.0 si la conversion echoue, mais aussi si j'entre 0.
