@@ -6,7 +6,7 @@
 /*   By: aisidore <aisidore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 14:37:31 by aisidore          #+#    #+#             */
-/*   Updated: 2025/08/25 16:37:53 by aisidore         ###   ########.fr       */
+/*   Updated: 2025/08/25 16:52:03 by aisidore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,14 @@ static bool			convertDouble(std::string msg[5], double dbl)
 		c = 0;
 	return (printMsg(msg, c, i, f, dbl));	
 }
-//=inff +inff
+
 bool				ScalarConverter::convert(const std::string &av)
 {
 	std::string msg[5] = {"char: ", "int: ", "float: ", "double: ", av};
 	if (av == " ") return (convertChar(msg, av[0]));
-
+	if (av == "+inff") return (convert("+inf"));
+	if (av == "-inff") return (convert("-inf"));
+	if (av == "-inff") return (convertChar(msg, av[0]));
 	char* end;//Pointe vers le 1er element non numerique (hors -+.)
 	double dbl = std::strtod(av.c_str(), &end);//vaut 0.0 si la conversion echoue, mais aussi si j'entre 0.
 	if (errno == ERANGE)
