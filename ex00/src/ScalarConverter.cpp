@@ -6,7 +6,7 @@
 /*   By: aisidore <aisidore@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/20 14:37:31 by aisidore          #+#    #+#             */
-/*   Updated: 2025/08/21 17:53:48 by aisidore         ###   ########.fr       */
+/*   Updated: 2025/08/25 15:54:01 by aisidore         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,50 @@ ScalarConverter::~ScalarConverter() {}
 
 static bool			printMsg(std::string msg[4], char c, int i, float f, double d)
 {
-	std::cout << msg[0] << c << std::endl;
+	if (c)
+		std::cout << msg[0] << "\'" << c << "\'" << std::endl;
+	else
+		std::cout << msg[0] << "Non displayable" << std::endl;
 	std::cout << msg[1] << i << std::endl;
-	std::cout << msg[2] << f << "f" << std::endl;
-	std::cout << msg[3] << d << std::endl;
+	if (!std::fabs(f - std::floor(f)) && std::fabs(f) < 1e6f)
+		std::cout << msg[2] << f << ".0f" << std::endl;
+	else
+		std::cout << msg[2] << std::setprecision(7) << f << "f" << std::endl;
+	if (!std::fabs(d - std::floor(d)) && std::fabs(d) < 1e6)
+		std::cout << msg[3] << d << ".0" << std::endl;
+	else
+		std::cout << msg[3] << std::setprecision(15) << d << std::endl;
+	return (true);
+}
+
+//la conversion de la plupart des elements marche sans
+static bool			isStrange(std::string str)
+{
+	if (str == "nanf" || str == "+inff" || str == "-inff"
+		|| str == "nan" || str == "-inf" || str == "+inf")
+		return (true);
+	// (void)str;
+	return (false);
+}
+
+static bool			convertStrange(std::string msg[4], std::string str)
+{
+	std::string	for_char = "impossible";
+	std::string	for_int = "impossible";
+	std::string	for_float = "impossible";
+	std::string	for_double = "impossible";
+	
+	(void)str;//
+	if (str == "nan")
+	{
+		
+	}
+
+	
+	std::cout << msg[0] << for_char << std::endl;
+	std::cout << msg[1] << for_int << std::endl;
+	std::cout << msg[2] << for_float << std::endl;
+	std::cout << msg[3] << for_double << std::endl;
 	return (true);
 }
 
@@ -46,7 +86,8 @@ static bool			convertInt(std::string msg[4], int i)
 	char	c = static_cast<char>(i);
 	float	f = static_cast<float>(i);
 	double	d = static_cast<double>(i);
-	std::cout << "COUCOUUUU c : " << c << std::endl;//
+	if (i < 33 || i > 126)
+		c = 0;
 	return (printMsg(msg, c, i, f, d));	
 }
 
@@ -55,6 +96,8 @@ static bool			convertFloat(std::string msg[4], float f)
 	char	c = static_cast<char>(f);
 	int		i = static_cast<int>(f);
 	double	d = static_cast<double>(f);
+	if (i < 33 || i > 126)
+		c = 0;
 	return (printMsg(msg, c, i, f, d));	
 }
 
@@ -63,22 +106,16 @@ static bool			convertDouble(std::string msg[4], double dbl)
 	char	c = static_cast<char>(dbl);
 	int		i = static_cast<int>(dbl);
 	float	f = static_cast<float>(dbl);
+	if (i < 33 || i > 126)
+		c = 0;
 	return (printMsg(msg, c, i, f, dbl));	
 }
 
-//Tester avec des espaces avant et apres "             127f                  "
-
-//PB :
-//PARFOIS char ne s'affiche pas
-//J;ai l'impression que float et double ont tjrs la meme valeur
 bool				ScalarConverter::convert(const std::string &av)
 {
-	//On gere le cas ./convert "" car sinon strtod : dbl = 0.0 et end = "" (pointe vers '\0')
-	if (av.empty()) return (false);
 	std::string msg[4] = {"char: ", "int: ", "float: ", "double: "};
-
-	//Testons inf, -inf, +inf, nan, inff, -inff, +inff
-	//Comme pour Harl (ex05 CPP01 on peut faire un truc propre) puis return (true); ???????
+	if (av == " ") return (convertChar(msg, av[0]));
+	if (isStrange(av)) return (convertStrange(msg, av));
 
 	char* end;//Pointe vers le 1er element non numerique (hors -+.)
 	double dbl = std::strtod(av.c_str(), &end);//vaut 0.0 si la conversion echoue, mais aussi si j'entre 0.
@@ -98,7 +135,7 @@ bool				ScalarConverter::convert(const std::string &av)
         av.find('e') == std::string::npos &&
         av.find('E') == std::string::npos &&
         dbl >= INT_MIN && dbl <= INT_MAX)
-			return (convertInt(msg, static_cast<int>(dbl)));//downcast explicite a la compilation
+			return (convertInt(msg, atoi(av.c_str())));//return (convertInt(msg, static_cast<int>(dbl)));//downcast explicite a la compilation
 		else
 			return (convertDouble(msg, dbl));//il s'agit d'un double, on peut travailler directement avec dbl.
 	}
@@ -111,13 +148,11 @@ bool				ScalarConverter::convert(const std::string &av)
 		//un float mais qui passe la 1ere protection (peut etre contenu dans un double),
 		//par ex 99999999999999999f.
 		if (dbl > FLT_MAX || dbl < -FLT_MAX)
-			return(false);//std::cerr << "Error" << std::endl; ON PEUT LE METTRE DANS LE MAIN
+			return(false);
 		else
-			return (convertFloat(msg, static_cast<float>(dbl)));
+			return (convertFloat(msg, std::strtof(av.c_str(), NULL)));//return (convertFloat(msg, static_cast<float>(dbl)));
 	}
-	//1 caractere a ete entre, et il est imprimable.
-	//Meme s'il s'agit d'un nb 0 a 9 ca a deja ete traite avant.
-	if (av.length() == 1 && av[0] > 32 && av[0] < 126)
+	if (av.length() == 1 && av[0] >= '!' && av[0] <= '~')
 		return (convertChar(msg, av[0]));
 	return(false);
 }
